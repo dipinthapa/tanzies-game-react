@@ -9,13 +9,14 @@ const Tanzie = () => {
     const [dices, setDices] = React.useState(allNewDices)
     const [tanzie, setTanzie] = React.useState(false);
     const [roll, setRoll] = React.useState(0)
-    const [start, setStart] = React.useState(0)
+    const [start, setStart] = React.useState(false)
     const [seconds, setSeconds] = React.useState(0)
     const [minutes, setMinutes] =React.useState(0)
     const [hours, setHours] = React.useState(0)
 
     if (seconds > 59) {
         setSeconds(0)
+        setMinutes(minutes => minutes + 1)
     }
     if (minutes > 59) {
         setMinutes(0)
@@ -42,13 +43,20 @@ const Tanzie = () => {
         let value = dices[0].value
         let isHeld = dices.every(dice => dice.isHeld)
         let isSameValue = dices.every(dice => dice.value == value)
-    })
+        if (isSameValue && isHeld) {
+            setTanzie(true)
+        }
+        else{
+            setTanzie(false)
+        }
+    }, [dices])
 
     function allNewDices(){
         const newArray = []
         for (let i = 0; i < 10; i++){
             newArray.push({id:nanoid(), value: (Math.floor(Math.random()* 6) + 1), isHeld:false})
         }
+        return newArray
     }
 
     function holdDice(id){
@@ -76,20 +84,30 @@ const Tanzie = () => {
         setRoll(x => x + 1)
     }
 
-    const diceElements = dices.map(dice => {
-        return {
-            <Dice />
-        }
-    })
+    const diceElements = dices.map((dice)=> <Dice 
+        key={dice.id}
+        value={dice.value}
+        isHeld={dice.isHeld}
+        id={dice.id}
+        holdDice={() => holdDice(dice.id)}
+    />
+)
 
   return (
     <>
         <main>
-            <h1 className='title'>Tanzies </h1>
-            <p className='instruction'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
-            <div className="start-menu">
+            {tanzie && <Conftti/>}
+            {!start && <h1 className='title'>Tanzies </h1>}
+            {!start && <p className='instruction'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>}
 
+            {start && <div className='start-menu'>
+                    <h2 className='timer'>Timer {String(hours).padStart(2, '0')} : {String(minutes).padStart(2, '0')} : {String(seconds).padStart(2, '0')}</h2>
+                    <h2 className='count-roll'>Count: {roll}</h2>
+                </div>}
+            <div className="dice-container">
+                {diceElements}
             </div>
+            <button onClick={rollDice} className='roll-button'>{tanzie ? "New Game" : "Roll"}</button>
         </main>
     </>
   )

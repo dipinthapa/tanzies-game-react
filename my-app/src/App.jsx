@@ -1,10 +1,11 @@
 import React from 'react'
+import Tanzie from './components/Tanzie'
 
 const App = () => {
   return (
-    <div>
-      
-    </div>
+    <>
+      <Tanzie /> 
+    </>
   )
 }
 
